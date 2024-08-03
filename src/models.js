@@ -280,6 +280,13 @@ async function constructSessions(
           options
         );
         const session = await createInferenceSession(buffer, session_options);
+        // console.log(session);
+        // Object.defineProperty(session, "inputNames", {
+        //   value: ["input_values"],
+        //   writable: true,
+        // });
+        // console.log(session);
+        session.handler.inputNames = ["input_values"];
         return [name, session];
       })
     )
@@ -301,7 +308,7 @@ function validateInputs(session, inputs) {
    */
   const checkedInputs = Object.create(null);
   const missingInputs = [];
-  for (const inputName of session.inputNames) {
+  for (const inputName of ["input_values"]) {
     const tensor = inputs[inputName];
     // Rare case where one of the model's input names corresponds to a built-in
     // object name (e.g., toString), which would cause a simple (!tensor) check to fail,
@@ -518,8 +525,7 @@ async function seq2seqForward(self, model_inputs) {
  */
 async function encoderForward(self, model_inputs) {
   const session = self.sessions["model"];
-  session.inputNames = ["input_values"];
-  const encoderFeeds = pick(model_inputs, session.inputNames);
+  const encoderFeeds = pick(model_inputs, ["input_values"]);
 
   if (
     session.inputNames.includes("inputs_embeds") &&

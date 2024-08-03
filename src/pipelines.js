@@ -1780,6 +1780,23 @@ export class AutomaticSpeechRecognitionPipeline
     }
   }
 
+  splitFloat32Array(originalArray) {
+    const result = [];
+    const totalElements = originalArray.length;
+    console.log("originalArray.legnth should be 3162 and is " + totalElements);
+    const subarraySize = 31;
+    const numberOfSubarrays = 102;
+
+    for (let i = 0; i < numberOfSubarrays; i++) {
+      const start = i * subarraySize;
+      const end = start + subarraySize;
+      const subarray = originalArray.slice(start, end);
+      result.push(subarray);
+    }
+
+    return result;
+  }
+
   /**
    * @type {AutomaticSpeechRecognitionPipelineCallback}
    * @private
@@ -1810,11 +1827,11 @@ export class AutomaticSpeechRecognitionPipeline
     for (const aud of preparedAudios) {
       const inputs = await this.processor(aud);
       const output = await this.model(inputs);
-      const logits = output.cpuData[0];
-
+      let logits = output.rest.output.ort_tensor.cpuData;
+      logits = this.splitFloat32Array(logits);
       const predicted_ids = [];
       for (const item of logits) {
-        predicted_ids.push(max(item.data)[1]);
+        predicted_ids.push(max(item)[1]);
       }
       const predicted_sentences = this.tokenizer.decode(predicted_ids);
       toReturn.push({ text: predicted_sentences });
