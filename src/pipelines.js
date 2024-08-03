@@ -1782,10 +1782,9 @@ export class AutomaticSpeechRecognitionPipeline
 
   splitFloat32Array(originalArray) {
     const result = [];
-    const totalElements = originalArray.length;
-    console.log("originalArray.legnth should be 3162 and is " + totalElements);
     const subarraySize = 31;
-    const numberOfSubarrays = 102;
+    const totalElements = originalArray.length;
+    const numberOfSubarrays = Math.floor(totalElements / subarraySize);
 
     for (let i = 0; i < numberOfSubarrays; i++) {
       const start = i * subarraySize;
